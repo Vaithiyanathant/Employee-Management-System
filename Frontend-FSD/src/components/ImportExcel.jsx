@@ -9,6 +9,7 @@ const ImportExcel = () => {
 	const [fileData, setFileData] = useState(null);
 	const [fileName, setFileName] = useState("");
 
+	// Step 1: Convert Excel to JSON
 	const handleFileUpload = (e) => {
 		const file = e.target.files[0];
 		if (!file) {
@@ -23,8 +24,55 @@ const ImportExcel = () => {
 			const workbook = XLSX.read(data, { type: "array" });
 			const sheetName = workbook.SheetNames[0];
 			const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-			setFileData(sheetData);
-			toast.success("File imported successfully!");
+
+			// Step 2: Validate and Format the Data
+			const formattedData = sheetData.map((row) => {
+				// Ensure "Date of Joining" is in YYYY-MM-DD format
+				let formattedDate;
+				if (row["Date of Joining"] instanceof Date) {
+					formattedDate = row["Date of Joining"].toISOString().split("T")[0];
+				} else if (typeof row["Date of Joining"] === "number") {
+					// Convert Excel numeric date to proper date
+					formattedDate = XLSX.SSF.parse_date_code(row["Date of Joining"]);
+					formattedDate = new Date(
+						formattedDate.y,
+						formattedDate.m - 1,
+						formattedDate.d
+					)
+						.toISOString()
+						.split("T")[0];
+				} else {
+					formattedDate = new Date(row["Date of Joining"])
+						.toISOString()
+						.split("T")[0];
+				}
+
+				return {
+					...row,
+					"Date of Joining": formattedDate,
+				};
+			});
+
+			const isValid = formattedData.every(
+				(row) =>
+					row.Name &&
+					row.EmployeeID &&
+					row.Email &&
+					/^\d{10}$/.test(row.Phone) &&
+					row.Department &&
+					row["Date of Joining"] &&
+					row.Role
+			);
+
+			if (!isValid) {
+				toast.error(
+					"Invalid data in Excel file. Check for missing or incorrect fields."
+				);
+				setFileData(null);
+			} else {
+				setFileData(formattedData);
+				toast.success("File imported and formatted successfully!");
+			}
 		};
 
 		reader.onerror = () => {
@@ -34,6 +82,7 @@ const ImportExcel = () => {
 		reader.readAsArrayBuffer(file);
 	};
 
+	// Step 3: Send JSON data to the server
 	const handlePushToDatabase = async () => {
 		if (!fileData || fileData.length === 0) {
 			toast.error("No data to push. Please upload a valid file.");
@@ -42,13 +91,15 @@ const ImportExcel = () => {
 
 		try {
 			const response = await axios.post(
-				"http://localhost:3000/upload",
-				fileData
+				"http://localhost:5000/api/employees/upload",
+				{
+					data: fileData,
+				}
 			);
-			toast.success(response.data);
+			toast.success(response.data.message);
 		} catch (error) {
 			toast.error(
-				error.response?.data ||
+				error.response?.data?.error ||
 					"Error occurred while pushing data to the database."
 			);
 		}
@@ -79,68 +130,6 @@ const ImportExcel = () => {
 								Selected File: {fileName}
 							</p>
 						)}
-					</div>
-
-					<div className='mt-6 text-center'>
-						<p className='text-gray-700'>File Format:</p>
-						<table className='w-full mt-4 border-collapse border border-gray-300 text-sm'>
-							<thead className='bg-gray-100'>
-								<tr>
-									<th className='border border-gray-300 px-4 py-2'>Column</th>
-									<th className='border border-gray-300 px-4 py-2'>
-										Description
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td className='border border-gray-300 px-4 py-2'>Name</td>
-									<td className='border border-gray-300 px-4 py-2'>
-										Full name of the employee
-									</td>
-								</tr>
-								<tr>
-									<td className='border border-gray-300 px-4 py-2'>
-										Employee ID
-									</td>
-									<td className='border border-gray-300 px-4 py-2'>
-										Unique identifier for the employee
-									</td>
-								</tr>
-								<tr>
-									<td className='border border-gray-300 px-4 py-2'>Email</td>
-									<td className='border border-gray-300 px-4 py-2'>
-										Email address of the employee
-									</td>
-								</tr>
-								<tr>
-									<td className='border border-gray-300 px-4 py-2'>Phone</td>
-									<td className='border border-gray-300 px-4 py-2'>
-										10-digit phone number
-									</td>
-								</tr>
-								<tr>
-									<td className='border border-gray-300 px-4 py-2'>
-										Department
-									</td>
-									<td className='border border-gray-300 px-4 py-2'>
-										Department name
-									</td>
-								</tr>
-								<tr>
-									<td className='border border-gray-300 px-4 py-2'>
-										Date of Joining
-									</td>
-									<td className='border border-gray-300 px-4 py-2'>
-										Date in YYYY-MM-DD format
-									</td>
-								</tr>
-								<tr>
-									<td className='border border-gray-300 px-4 py-2'>Role</td>
-									<td className='border border-gray-300 px-4 py-2'>Job role</td>
-								</tr>
-							</tbody>
-						</table>
 					</div>
 
 					{fileData && (
