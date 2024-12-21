@@ -52,10 +52,18 @@ const EmployeeList = () => {
 	// Handle save changes
 	const handleSave = async (id) => {
 		try {
-			await API.put(`/employees/update/${id}`, editedEmployee);
+			const updatedEmployee = {
+				...editedEmployee,
+				dateOfJoining: editedEmployee.dateOfJoining
+					? new Date(editedEmployee.dateOfJoining).toISOString().split("T")[0]
+					: null, // Ensure the date is properly formatted
+			};
+
+			await API.put(`/employees/update/${id}`, updatedEmployee);
+
 			setEmployees((prevEmployees) =>
 				prevEmployees.map((emp) =>
-					emp.id === id ? { ...emp, ...editedEmployee } : emp
+					emp.id === id ? { ...emp, ...updatedEmployee } : emp
 				)
 			);
 			setEditRowId(null);
@@ -64,6 +72,7 @@ const EmployeeList = () => {
 			toast.error("Failed to update employee!");
 		}
 	};
+
 
 	// Filter employees based on search term
 	const filteredEmployees = employees.filter((emp) =>
@@ -196,7 +205,31 @@ const EmployeeList = () => {
 										emp.department
 									)}
 								</td>
-								<td className='px-4 py-3'>{emp.dateOfJoining}</td>
+								<td className='px-4 py-3'>
+									{editRowId === emp.id ? (
+										<input
+											type='date'
+											value={
+												editedEmployee.dateOfJoining
+													? new Date(editedEmployee.dateOfJoining)
+															.toISOString()
+															.split("T")[0]
+													: "" // Format the date safely
+											}
+											onChange={(e) =>
+												setEditedEmployee({
+													...editedEmployee,
+													dateOfJoining: e.target.value, // Update with YYYY-MM-DD
+												})
+											}
+											className='w-full px-2 py-1 border border-gray-300 rounded'
+										/>
+									) : emp.dateOfJoining ? (
+										new Date(emp.dateOfJoining).toISOString().split("T")[0] // Safely display the date
+									) : (
+										"N/A"
+									)}
+								</td>
 								<td className='px-4 py-3'>{emp.role}</td>
 								<td className='px-4 py-3 text-center flex justify-center space-x-2'>
 									{editRowId === emp.id ? (

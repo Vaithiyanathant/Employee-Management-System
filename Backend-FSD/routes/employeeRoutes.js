@@ -41,7 +41,7 @@ router.post("/add", (req, res) => {
 	);
 });
 
-// Get 
+// Get
 router.get("/list", (req, res) => {
 	const sql = `SELECT * FROM employees`;
 
@@ -53,44 +53,9 @@ router.get("/list", (req, res) => {
 	});
 });
 
-// Update 
-router.put("/update/:id", (req, res) => {
-	const { id } = req.params;
-	const { name, employeeId, email, phone, department, dateOfJoining, role } =
-		req.body;
+// Update
 
-	if (
-		!name ||
-		!employeeId ||
-		!email ||
-		!phone ||
-		!department ||
-		!dateOfJoining ||
-		!role
-	) {
-		return res.status(400).json({ error: "All fields are required" });
-	}
-
-	const sql = `UPDATE employees 
-               SET name = ?, employeeId = ?, email = ?, phone = ?, department = ?, dateOfJoining = ?, role = ?
-               WHERE id = ?`;
-
-	db.query(
-		sql,
-		[name, employeeId, email, phone, department, dateOfJoining, role, id],
-		(err, result) => {
-			if (err) {
-				return res.status(500).json({ error: err.message });
-			}
-			if (result.affectedRows === 0) {
-				return res.status(404).json({ error: "Employee not found" });
-			}
-			res.status(200).json({ message: "Employee updated successfully" });
-		}
-	);
-});
-
-// Delete 
+// Delete
 router.delete("/delete/:id", (req, res) => {
 	const { id } = req.params;
 
@@ -104,6 +69,32 @@ router.delete("/delete/:id", (req, res) => {
 			return res.status(404).json({ error: "Employee not found" });
 		}
 		res.status(200).json({ message: "Employee deleted successfully" });
+	});
+});
+
+router.put("/update/:id", (req, res) => {
+	const { id } = req.params; // Employee ID from the URL
+	const { name, email, phone, department, dateOfJoining, role } = req.body; // Ensure the field matches the database column name
+
+	if (!name || !email || !phone || !department || !dateOfJoining || !role) {
+		return res.status(400).json({ error: "All fields are required." });
+	}
+
+	const sql =
+		"UPDATE employees SET name = ?, email = ?, phone = ?, department = ?, dateOfJoining = ?, role = ? WHERE id = ?";
+	const values = [name, email, phone, department, dateOfJoining, role, id];
+
+	db.query(sql, values, (err, result) => {
+		if (err) {
+			console.error("Error updating employee:", err);
+			return res.status(500).json({ error: "Error updating employee." });
+		}
+
+		if (result.affectedRows === 0) {
+			return res.status(404).json({ error: "Employee not found." });
+		}
+
+		res.status(200).json({ message: "Employee updated successfully." });
 	});
 });
 
