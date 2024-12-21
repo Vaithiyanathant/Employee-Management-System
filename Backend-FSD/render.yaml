@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: backend-fsd
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server.js
