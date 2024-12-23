@@ -1,12 +1,12 @@
 /** @format */
 
 import React from "react";
-import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles.css";
 
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./components/SideBar";
 import Navbar from "./components/Navbar";
 import EmployeeList from "./components/EmployeeList";
 import ImportExcel from "./components/ImportExcel";
