@@ -14,6 +14,7 @@ import {
 	FaChartPie,
 } from "react-icons/fa";
 import { notify } from "sooner";
+import { Link } from "react-router-dom";
 
 const Sidebar = () => {
 	const [isEmployeeMenuOpen, setEmployeeMenuOpen] = useState(true);
@@ -39,11 +40,11 @@ const Sidebar = () => {
 				<ul className='space-y-2'>
 					{/* Dashboard */}
 					<li>
-						<a
-							href='/'
+						<Link
+							to='/'
 							className='flex items-center px-4 py-2 text-black hover:text-white hover:bg-blue-600 rounded-lg transition-colors'>
 							<FaHome className='h-5 w-5 mr-3' /> Home
-						</a>
+						</Link>
 					</li>
 
 					{/* Employee Menu */}
@@ -61,25 +62,25 @@ const Sidebar = () => {
 						{isEmployeeMenuOpen && (
 							<ul className='pl-10 space-y-1 mt-2'>
 								<li>
-									<a
-										href='/employees'
+									<Link
+										to='/employees'
 										className='flex items-center px-4 py-2 text-black hover:text-white hover:bg-blue-600 rounded-lg transition-colors'>
 										<FaBriefcase className='h-5 w-5 mr-2' /> Display Employee
-									</a>
+									</Link>
 								</li>
 								<li>
-									<a
-										href='/Add-emp'
+									<Link
+										to='/Add-emp'
 										className='flex items-center px-4 py-2 text-black hover:text-white hover:bg-blue-600 rounded-lg transition-colors'>
 										<FaUserPlus className='h-5 w-5 mr-2' /> Add Employee
-									</a>
+									</Link>
 								</li>
 								<li>
-									<a
-										href='/import-excel'
+									<Link
+										to='/import-excel'
 										className='flex items-center px-4 py-2 text-black hover:text-white hover:bg-blue-600 rounded-lg transition-colors'>
 										<FaFileImport className='h-5 w-5 mr-2' /> Import from Excel
-									</a>
+									</Link>
 								</li>
 							</ul>
 						)}
@@ -87,17 +88,16 @@ const Sidebar = () => {
 
 					{/* Analysis */}
 					<li>
-						<a
-							href='/emp-analysis'
+						<Link
+							to='/emp-analysis'
 							className='flex items-center px-4 py-2 text-black hover:text-white hover:bg-blue-600 rounded-lg transition-colors'>
 							<FaChartPie className='h-5 w-5 mr-3' /> Analysis
-						</a>
+						</Link>
 					</li>
 				</ul>
 			</nav>
 
 			{/* Footer */}
-			
 		</div>
 	);
 };
