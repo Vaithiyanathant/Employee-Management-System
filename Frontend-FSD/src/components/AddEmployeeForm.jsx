@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import API from "../utils/api";
-import { toast } from "react-toastify";
+import { notify } from "sooner";
 import { FaMicrophone } from "react-icons/fa";
 import EmployeeTable from "./EmployeeTable";
 
@@ -32,7 +32,7 @@ const AddEmployeeForm = () => {
 			window.SpeechRecognition || window.webkitSpeechRecognition;
 
 		if (!SpeechRecognition) {
-			toast.error("Your browser does not support Speech Recognition.");
+			notify.error("Your browser does not support Speech Recognition.");
 			return;
 		}
 
@@ -52,7 +52,7 @@ const AddEmployeeForm = () => {
 
 		recognition.onerror = (event) => {
 			console.error("Speech recognition error:", event.error);
-			toast.error("Error capturing voice input.");
+			notify.error("Error capturing voice input.");
 			setIsListening(false);
 		};
 
@@ -95,7 +95,7 @@ const AddEmployeeForm = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		if (!validate()) {
-			toast.error("Please fix the validation errors before submitting.");
+			notify.error("Please fix the validation errors before submitting.");
 			return;
 		}
 
@@ -107,7 +107,7 @@ const AddEmployeeForm = () => {
 
 		try {
 			const response = await API.post("/employees/add", formattedData);
-			toast.success(response.data.message);
+			notify.success(response.data.message);
 			setFormData({
 				name: "",
 				employeeId: "",
@@ -119,14 +119,14 @@ const AddEmployeeForm = () => {
 			});
 			setErrors({});
 		} catch (error) {
-			toast.error(error.response?.data?.error || "Submission failed!");
+			notify.error(error.response?.data?.error || "Submission failed!");
 		}
 	};
 
 	return (
 		<>
-			<div className='w-full p-8 bg-white shadow-lg rounded-lg mb-3'>
-				<h2 className='text-3xl font-bold mb-6 text-[#f15656] text-center'>
+			<div className='w-full p-8 bg-[#f9fafb] shadow-lg rounded-lg mb-3'>
+				<h2 className='text-3xl font-bold mb-6 text-blue-500 text-center'>
 					Add Employee
 				</h2>
 				<form
@@ -168,11 +168,11 @@ const AddEmployeeForm = () => {
 										onChange={handleChange}
 										placeholder={field.placeholder}
 										maxLength={field.maxLength || undefined}
-										className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500'
+										className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'
 									/>
 									<FaMicrophone
-										className={`absolute right-3 cursor-pointer ${
-											isListening ? "text-red-500" : "text-gray-400"
+										className={`absolute right-3 cursor-pointer hover:text-blue-500 ${
+											isListening ? "text-blue-600" : "text-gray-400"
 										}`}
 										onClick={() => handleSpeechInput(field.name)}
 									/>
@@ -193,7 +193,7 @@ const AddEmployeeForm = () => {
 								name='department'
 								value={formData.department}
 								onChange={handleChange}
-								className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500'>
+								className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'>
 								<option value=''>Select Department</option>
 								<option value='CSE'>CSE</option>
 								<option value='IT'>IT</option>
@@ -214,7 +214,7 @@ const AddEmployeeForm = () => {
 								type='date'
 								value={formData.dateOfJoining}
 								onChange={handleChange}
-								className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500'
+								className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'
 							/>
 							{errors.dateOfJoining && (
 								<p className='text-red-500 text-sm'>{errors.dateOfJoining}</p>
@@ -228,7 +228,7 @@ const AddEmployeeForm = () => {
 								name='role'
 								value={formData.role}
 								onChange={handleChange}
-								className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500'>
+								className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'>
 								<option value=''>Select Role</option>
 								<option value='SDE'>SDE</option>
 								<option value='FSD'>FSD</option>
@@ -243,7 +243,7 @@ const AddEmployeeForm = () => {
 					<div className='flex justify-end space-x-4'>
 						<button
 							type='submit'
-							className='px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600'>
+							className='px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600'>
 							Submit
 						</button>
 						<button

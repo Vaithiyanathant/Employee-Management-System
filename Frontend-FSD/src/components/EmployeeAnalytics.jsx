@@ -16,7 +16,8 @@ import {
 	Line,
 } from "recharts";
 import API from "../utils/api";
-import { toast } from "react-toastify";
+import { notify } from "sooner";
+import EmployeeHeatmap from "./EmployeeHeatmap";
 
 const EmployeeAnalytics = () => {
 	const [employees, setEmployees] = useState([]);
@@ -30,8 +31,9 @@ const EmployeeAnalytics = () => {
 			const response = await API.get("/employees/list");
 			setEmployees(response.data);
 			processAnalytics(response.data);
+			notify.success("Employee data fetched successfully!");
 		} catch (error) {
-			toast.error("Error fetching employees");
+			notify.error("Error fetching employees. Please try again.");
 		}
 	};
 
@@ -53,18 +55,38 @@ const EmployeeAnalytics = () => {
 		fetchEmployees();
 	}, []);
 
+	const blueGradient = [
+		"#E3F2FD", // blue-100
+		"#BBDEFB", // blue-200
+		"#90CAF9", // blue-300
+		"#64B5F6", // blue-400
+		"#42A5F5", // blue-500
+		"#2196F3", // blue-600
+		"#1E88E5", // blue-700
+		"#1976D2", // blue-800
+		"#1565C0", // blue-900
+	];
+
+	const getColor = (value, maxValue) => {
+		const index = Math.min(
+			Math.floor((value / maxValue) * (blueGradient.length - 1)),
+			blueGradient.length - 1
+		);
+		return blueGradient[index];
+	};
+
 	const chartData =
 		filter === "Department"
 			? Object.keys(departmentData).map((key) => ({
 					name: key,
 					value: departmentData[key],
-					color: "#FF6F61",
 			  }))
 			: Object.keys(roleData).map((key) => ({
 					name: key,
 					value: roleData[key],
-					color: "#4CAF50",
 			  }));
+
+	const maxValue = Math.max(...chartData.map((item) => item.value));
 
 	const renderChart = (data) => {
 		switch (selectedChart) {
@@ -84,14 +106,14 @@ const EmployeeAnalytics = () => {
 							{data.map((entry, index) => (
 								<Cell
 									key={`cell-${index}`}
-									fill={entry.color}
+									fill={getColor(entry.value, maxValue)}
 								/>
 							))}
 						</Pie>
 						<Tooltip
 							contentStyle={{
-								backgroundColor: "#ffffff",
-								border: "1px solid #ddd",
+								backgroundColor: "#ffffff", // white
+								border: "1px solid #3B82F6", // blue-500
 								borderRadius: "5px",
 								fontSize: "14px",
 							}}
@@ -100,7 +122,7 @@ const EmployeeAnalytics = () => {
 							layout='horizontal'
 							align='center'
 							verticalAlign='bottom'
-							wrapperStyle={{ fontSize: "14px", color: "#333" }}
+							wrapperStyle={{ fontSize: "14px", color: "#1E3A8A" }}
 						/>
 					</PieChart>
 				);
@@ -109,14 +131,21 @@ const EmployeeAnalytics = () => {
 					<BarChart
 						data={data}
 						margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-						<XAxis dataKey='name' />
-						<YAxis />
+						<XAxis
+							dataKey='name'
+							stroke='#1E3A8A'
+						/>
+						<YAxis stroke='#1E3A8A' />
 						<Tooltip />
 						<Legend />
-						<Bar
-							dataKey='value'
-							fill='#FF6F61'
-						/>
+						<Bar dataKey='value'>
+							{data.map((entry, index) => (
+								<Cell
+									key={`cell-${index}`}
+									fill={getColor(entry.value, maxValue)}
+								/>
+							))}
+						</Bar>
 					</BarChart>
 				);
 			case "Line":
@@ -124,14 +153,19 @@ const EmployeeAnalytics = () => {
 					<LineChart
 						data={data}
 						margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-						<XAxis dataKey='name' />
-						<YAxis />
+						<XAxis
+							dataKey='name'
+							stroke='#1E3A8A'
+						/>
+						<YAxis stroke='#1E3A8A' />
 						<Tooltip />
 						<Legend />
 						<Line
 							type='monotone'
 							dataKey='value'
-							stroke='#FF6F61'
+							stroke='#3B82F6'
+							dot={{ fill: "#3B82F6" }}
+							activeDot={{ r: 8 }}
 						/>
 					</LineChart>
 				);
@@ -141,53 +175,61 @@ const EmployeeAnalytics = () => {
 	};
 
 	return (
-		<div className='p-6 bg-gradient-to-br from-white via-gray-100 to-white min-h-screen'>
-			<h1 className='text-3xl font-bold text-center mb-8 text-[#dc2626]'>
+		<div className='p-6 bg-[#f9fafb] min-h-screen'>
+			<h1 className='text-3xl font-bold text-center mb-8 text-blue-500'>
 				📊 Employee Analytics Dashboard
 			</h1>
 
 			{/* Stats Cards Section */}
 			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10'>
-				<div className='p-6 bg-[#fee2e2] rounded-lg shadow-lg flex flex-col items-center justify-center'>
-					<div className='w-12 h-12 bg-[#f15656] rounded-full flex items-center justify-center mb-4'>
+				<div className='p-6 bg-white rounded-lg shadow-lg flex flex-col items-center justify-center'>
+					<div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mb-4'>
 						<span className='text-white text-2xl font-bold'>👤</span>
 					</div>
-					<h2 className='text-md font-semibold text-[#f15656]'>
+					<h2 className='text-md font-semibold text-blue-500'>
 						Total Employees
 					</h2>
-					<p className='text-4xl font-extrabold text-[#f15656] mt-2'>
+					<p className='text-4xl font-extrabold text-blue-500 mt-2'>
 						{employees.length}
 					</p>
 				</div>
 
-				<div className='p-6 bg-[#fff9c4] rounded-lg shadow-lg flex flex-col items-center justify-center'>
-					<div className='w-12 h-12 bg-[#fbc02d] rounded-full flex items-center justify-center mb-4'>
+				<div className='p-6 bg-white rounded-lg shadow-lg flex flex-col items-center justify-center'>
+					<div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mb-4'>
 						<span className='text-white text-2xl font-bold'>🏢</span>
 					</div>
-					<h2 className='text-md font-semibold text-[#fbc02d]'>Departments</h2>
-					<p className='text-4xl font-extrabold text-[#fbc02d] mt-2'>
+					<h2 className='text-md font-semibold text-blue-500'>Departments</h2>
+					<p className='text-4xl font-extrabold text-blue-500 mt-2'>
 						{Object.keys(departmentData).length}
 					</p>
 				</div>
 
-				<div className='p-6 bg-[#c8e6c9] rounded-lg shadow-lg flex flex-col items-center justify-center'>
-					<div className='w-12 h-12 bg-[#43a047] rounded-full flex items-center justify-center mb-4'>
+				<div className='p-6 bg-white rounded-lg shadow-lg flex flex-col items-center justify-center'>
+					<div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mb-4'>
 						<span className='text-white text-2xl font-bold'>👔</span>
 					</div>
-					<h2 className='text-md font-semibold text-[#43a047]'>Roles</h2>
-					<p className='text-4xl font-extrabold text-[#43a047] mt-2'>
+					<h2 className='text-md font-semibold text-blue-500'>Roles</h2>
+					<p className='text-4xl font-extrabold text-blue-500 mt-2'>
 						{Object.keys(roleData).length}
 					</p>
 				</div>
 
-				<div className='p-6 bg-[#e3f2fd] rounded-lg shadow-lg flex flex-col items-center justify-center'>
-					<div className='w-12 h-12 bg-[#1e88e5] rounded-full flex items-center justify-center mb-4'>
+				<div className='p-6 bg-white rounded-lg shadow-lg flex flex-col items-center justify-center'>
+					<div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mb-4'>
 						<span className='text-white text-2xl font-bold'>📅</span>
 					</div>
-					<h2 className='text-md font-semibold text-[#1e88e5]'>
-						Idle Employees	
+					<h2 className='text-md font-semibold text-blue-500'>
+						Current Year Joining
 					</h2>
-					<p className='text-4xl font-extrabold text-[#1e88e5] mt-2'>1</p>
+					<p className='text-4xl font-extrabold text-blue-500 mt-2'>
+						{
+							employees.filter(
+								(emp) =>
+									new Date(emp.dateOfJoining).getFullYear() ===
+									new Date().getFullYear()
+							).length
+						}
+					</p>
 				</div>
 			</div>
 
@@ -195,17 +237,15 @@ const EmployeeAnalytics = () => {
 			<div className='grid grid-cols-1 lg:grid-cols-2 gap-10'>
 				{/* Left Section: Chart */}
 				<div className='p-6 bg-white rounded-xl shadow-lg border'>
-					<div className=' mb-6'>
-						<div className='flex items-center justify-center'>
-							<h2 className='text-lg font-semibold text-gray-700 text-center'>
-								Employees by {filter}
-							</h2>
-						</div>
+					<div className='mb-6'>
+						<h2 className='text-lg font-semibold text-gray-700 text-center'>
+							Employees by {filter}
+						</h2>
 					</div>
 
 					<div className='flex justify-center mb-6 space-x-4'>
 						<select
-							className='px-4 py-2 rounded-lg border text-black bg-[#fee2e2] hover:bg-[#f15656] hover:text-white focus:outline-none focus:ring focus:ring-[#f15656]'
+							className='px-4 py-2 rounded-lg border text-black bg-blue-500 text-white hover:bg-blue-600'
 							value={selectedChart}
 							onChange={(e) => setSelectedChart(e.target.value)}>
 							<option value='Pie'>Pie Chart</option>
@@ -213,7 +253,7 @@ const EmployeeAnalytics = () => {
 							<option value='Line'>Line Chart</option>
 						</select>
 						<select
-							className='px-4 py-2 rounded-lg border text-black bg-[#fee2e2] hover:bg-[#f15656] hover:text-white focus:outline-none focus:ring focus:ring-[#f15656]'
+							className='px-4 py-2 rounded-lg border text-black bg-blue-500 text-white hover:bg-blue-600'
 							value={filter}
 							onChange={(e) => setFilter(e.target.value)}>
 							<option value='Department'>By Department</option>
@@ -228,9 +268,9 @@ const EmployeeAnalytics = () => {
 					</ResponsiveContainer>
 				</div>
 
-				{/* Right Section: Empty (For Map) */}
-				<div className='p-6 bg-white rounded-xl shadow-lg border flex items-center justify-center'>
-					<p className='text-gray-500 italic'>Map section coming soon...</p>
+				{/* Right Section: Heatmap */}
+				<div className='p-6 bg-white rounded-xl shadow-lg border'>
+					<EmployeeHeatmap />
 				</div>
 			</div>
 		</div>

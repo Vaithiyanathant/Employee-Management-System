@@ -80,21 +80,20 @@ const EmployeeList = () => {
 	);
 
 	return (
-		<div className='max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md'>
+		<div className='max-w-7xl mx-auto p-6 bg-[#f9fafb] rounded-lg shadow-md'>
 			{/* Header Section */}
 			<div className='flex justify-between items-center mb-6'>
-				<h2 className='text-2xl font-semibold text-gray-700'>
+				<h2 className='text-2xl font-semibold'>
 					Manage Employee
 				</h2>
 				<div className='flex space-x-4'>
 					<Link to='/import-excel'>
-						<button className='px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200'>
+						<button className='px-4 py-2 bg-white text-blue-500 border border-blue-500 rounded-md hover:bg-blue-600 hover:text-white'>
 							Import from Excel
 						</button>
 					</Link>
-
 					<Link to='/Add-emp'>
-						<button className='px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600'>
+						<button className='px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600'>
 							+ Add Employee
 						</button>
 					</Link>
@@ -114,7 +113,7 @@ const EmployeeList = () => {
 
 			{/* Employee Table */}
 			<div className='overflow-x-auto'>
-				<table className='w-full table-auto text-sm border-collapse rounded-md'>
+				<table className='w-full table-auto text-sm border-collapse rounded-md '>
 					<thead>
 						<tr className='bg-gray-50 text-gray-700 text-sm font-medium'>
 							<th className='px-4 py-3 text-left'>ID</th>
@@ -134,7 +133,7 @@ const EmployeeList = () => {
 								key={emp.id}
 								className={`text-sm ${
 									index % 2 === 0 ? "bg-white" : "bg-gray-50"
-								} hover:bg-gray-100`}>
+								} hover:bg-blue-200`}>
 								<td className='px-4 py-3'>{emp.id}</td>
 								<td className='px-4 py-3'>
 									{editRowId === emp.id ? (
